@@ -1,50 +1,54 @@
 %{
-#include "y.tab.h" // Inclui o cabeçalho gerado pelo Yacc/Bison para comunicação
+#include "y.tab.h"
+int linha = 1; // Variável para contar as linhas
 %}
+
+%option noyywrap
 
 %%
 
-"programa"       { return PROGRAMA; }
-"int"            { return INT; }
-"car"            { return CAR; }
-";"              { return SEMICOLON; }
-","              { return COMMA; }
-"["              { return LBRACKET; }
-"]"              { return RBRACKET; }
-"("              { return LPAREN; }
-")"              { return RPAREN; }
-"{"              { return LBRACE; }
-"}"              { return RBRACE; }
-"retorne"        { return RETORNE; }
-"leia"           { return LEIA; }
-"escreva"        { return ESCREVA; }
-"novalinha"      { return NOVALINHA; }
-"se"             { return SE; }
-"entao"          { return ENTAO; }
-"senao"          { return SENAO; }
-"enquanto"       { return ENQUANTO; }
-"execute"        { return EXECUTE; }
-"ou"             { return OU; }
-"e"              { return E; }
-"=="             { return EQ; }
-"!="             { return NE; }
-"<"              { return LT; }
-">"              { return GT; }
-"<="             { return LE; }
-">="             { return GE; }
-"+"              { return PLUS; }
-"-"              { return MINUS; }
-"*"              { return ASTERISK; }
-"/"              { return SLASH; }
-"%"              { return PERCENT; }
-"="              { return ASSIGN; }
-"?"              { return QUESTION; }
-":"              { return COLON; }
-[0-9]+           { yylval = atoi(yytext); return INTCONST; }
-\"[^\"]*\"       { return STRING_LITERAL; }
-[a-zA-Z_][a-zA-Z0-9_]*  { yylval.str = strdup(yytext); return ID; }
+"programa"   { return PROGRAMA; }
+"car"        { return CAR; }
+"int"        { return INT; }
+"retorne"    { return RETORNE; }
+"leia"       { return LEIA; }
+"escreva"    { return ESCREVA; }
+"novalinha"  { return NOVALINHA; }
+"se"         { return SE; }
+"entao"      { return ENTAO; }
+"senao"      { return SENAO; }
+"enquanto"   { return ENQUANTO; }
+"execute"    { return EXECUTE; }
+"?"          { return QUESTION; }
+":"          { return COLON; }
+"%"          { return PERCENT; }
+"!"          { return NOT; } 
 
-[ \t\n]+         // Ignora espaços em branco
-.               { return *yytext; } // Caracteres individuais
+\"[^"\n]*\"  {
+    yylval.str = strdup(yytext);
+    return CONSTSTRING;
+}
+
+[a-zA-Z_][a-zA-Z_0-9]* {
+    yylval.str = strdup(yytext);
+    return ID;
+}
+
+"/*" {
+    char c, prev = 0;
+    while ((c = input()) != 0) {
+        if (c == '\n') linha++;
+        if (c == '/' && prev == '*') break;
+        prev = c;
+    }
+    if (c == 0) {
+        printf("ERRO: COMENTARIO NAO TERMINA na linha %d\n", linha);
+        exit(1);
+    }
+}
+
+\n            { linha++; }
+[\t ]         ; // Ignora espaços em branco e tabs
+.             { printf("ERRO: CARACTERE INVALIDO '%c' na linha %d\n", *yytext, linha); exit(1); }
 
 %%
