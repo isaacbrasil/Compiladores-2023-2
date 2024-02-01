@@ -1,45 +1,50 @@
 %{
-#include "y.tab.h" // Inclua o arquivo de cabeçalho gerado pelo Bison/YACC
+#include "y.tab.h" // Inclui o cabeçalho gerado pelo Yacc/Bison para comunicação
 %}
 
-%option noyywrap
-
-// Lista das palavras reservadas
-%token PROGRAMA CAR INT RETORNE LEIA ESCREVA NOVALINHA SE ENTAO SENAO ENQUANTO EXECUTE
-
-%%
 %%
 
-// Definições das palavras reservadas
-programa        { return PROGRAMA; }
-car             { return CAR; }
-int             { return INT; }
-retorne         { return RETORNE; }
-leia            { return LEIA; }
-escreva         { return ESCREVA; }
-novalinha       { return NOVALINHA; }
-se              { return SE; }
-entao           { return ENTAO; }
-senao           { return SENAO; }
-enquanto        { return ENQUANTO; }
-execute         { return EXECUTE; }
+"programa"       { return PROGRAMA; }
+"int"            { return INT; }
+"car"            { return CAR; }
+";"              { return SEMICOLON; }
+","              { return COMMA; }
+"["              { return LBRACKET; }
+"]"              { return RBRACKET; }
+"("              { return LPAREN; }
+")"              { return RPAREN; }
+"{"              { return LBRACE; }
+"}"              { return RBRACE; }
+"retorne"        { return RETORNE; }
+"leia"           { return LEIA; }
+"escreva"        { return ESCREVA; }
+"novalinha"      { return NOVALINHA; }
+"se"             { return SE; }
+"entao"          { return ENTAO; }
+"senao"          { return SENAO; }
+"enquanto"       { return ENQUANTO; }
+"execute"        { return EXECUTE; }
+"ou"             { return OU; }
+"e"              { return E; }
+"=="             { return EQ; }
+"!="             { return NE; }
+"<"              { return LT; }
+">"              { return GT; }
+"<="             { return LE; }
+">="             { return GE; }
+"+"              { return PLUS; }
+"-"              { return MINUS; }
+"*"              { return ASTERISK; }
+"/"              { return SLASH; }
+"%"              { return PERCENT; }
+"="              { return ASSIGN; }
+"?"              { return QUESTION; }
+":"              { return COLON; }
+[0-9]+           { yylval = atoi(yytext); return INTCONST; }
+\"[^\"]*\"       { return STRING_LITERAL; }
+[a-zA-Z_][a-zA-Z0-9_]*  { yylval.str = strdup(yytext); return ID; }
 
-// Definição de identificador
-[a-zA-Z_][a-zA-Z0-9_-]* { yylval.string = strdup(yytext); return ID; }
-
-// Comentários
-"/*"            { BEGIN(COMMENT); }
-<COMMENT>"*/"   { BEGIN(INITIAL); }
-<COMMENT>.|\n   { /* Ignore tudo dentro dos comentários */ }
-
-// Erros
-<<EOF>>         { if (YY_START == COMMENT) {
-                    yyerror("Comentário não terminado.");
-                  }
-                }
-.               { yyerror("Caractere inválido."); }
-
-// Esta seção deve conter código para retornar tokens para literais numéricos, strings, operadores, etc.
-// Adicione suas próprias regras aqui.
+[ \t\n]+         // Ignora espaços em branco
+.               { return *yytext; } // Caracteres individuais
 
 %%

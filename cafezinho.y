@@ -1,23 +1,35 @@
 %{
-#include "seu_analisador_lexico.h" // Incluir o cabeçalho do analisador léxico
-
+#include <stdio.h>
+#include <stdlib.h>
 void yyerror(const char *s);
 %}
 
-%token PROGRAMA CAR INTCONST ID STRING_LITERAL
-%start Programa
+%token PROGRAMA INT CAR ID INTCONST STRING_LITERAL
+%token SEMICOLON COMMA LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE
+%token RETORNE LEIA ESCREVA NOVALINHA SE ENTAO SENAO ENQUANTO EXECUTE
+%token OU E EQ NE LT GT LE GE PLUS MINUS ASTERISK SLASH PERCENT ASSIGN QUESTION COLON
 
 %%
-Programa: DeclFuncVar DeclProg { /* Código semântico aqui */ };
 
-// Adicionar as outras regras gramaticais...
+programa: declfuncvar declprog
+        ;
+
+declfuncvar: tipo ID declvar SEMICOLON declfuncvar
+           | tipo ID LBRACKET INTCONST RBRACKET declvar SEMICOLON declfuncvar
+           | tipo ID declfunc declfuncvar
+           | /* ε */
+           ;
+
+declprog: PROGRAMA bloco
+        ;
+
+declvar: COMMA ID declvar
+       | COMMA ID LBRACKET INTCONST RBRACKET declvar
+       | /* ε */
+       ;
+
+/* Continuar com as demais regras da gramática */
+
 %%
-
 void yyerror(const char *s) {
-    fprintf(stderr, "ERRO: %s na linha %d\n", s, yylineno);
-}
-
-int main(int argc, char **argv) {
-    // Adicionar o código para abrir o arquivo e iniciar o parsing
-    return yyparse();
-}
+    fprintf
